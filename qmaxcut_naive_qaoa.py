@@ -2,6 +2,12 @@
 This runs the iteration from BFMVZ21 to solve quantum maxcut,
 but using the qaoa state for maxcut. This is as in the paper,
 except now we compute the expectation over ZZ, as well as YY and XX.
+
+Usage:
+
+python qmaxcut_naive_qaoa p
+
+will find optimal angles for depth p.
 '''
 
 import sys
@@ -87,6 +93,7 @@ def get_expectation(params, verbose=False):
 	for ind1, bs1 in enumerate(bitstrings):
 		for ind2, bs2 in enumerate(bitstrings):
 			totalZZ += bs1[p] * bs2[p] * f_betas(bs1, betas) * f_betas(bs2, betas) * Hp[ind1] * Hp[ind2] * gamma_dp(gammas, bs1, bs2)
+			# comment both lines below to recover the classical maxcut iteration from BFMVZ21
 			totalYY += bs1[p] * bs2[p] * g_betas(bs1, betas) * g_betas(bs2, betas) * Hp[ind1] * Hp[ind2] * gamma_dp(gammas, bs1, bs2)
 			totalXX += g_betas(bs1, betas) * g_betas(bs2, betas) * Hp[ind1] * Hp[ind2] * gamma_dp(gammas, bs1, bs2)
 
@@ -99,7 +106,7 @@ def get_expectation(params, verbose=False):
 		print(f'YY term:{totalYY}')
 		print(f'XX term:{totalXX}')
 
-	return 0.5 * (totalXX + totalYY + totalZZ)
+	return (totalXX + totalYY + totalZZ)
 
 obj = opt.minimize(get_expectation, np.random.rand(2*p), tol=1e-3, options={'maxiter':100, 'disp':True})
 print(f'Optimization result: {obj.message}')
