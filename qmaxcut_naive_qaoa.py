@@ -23,6 +23,9 @@ p = int(sys.argv[1])
 bs_size = 2*p+1
 bitstrings = list(product([-1,1], repeat=bs_size))
 
+def minus(bs):
+	return [-bit for bit in bs]
+
 def eib_entries(bit1, bit2, beta):
 	if bit1 == bit2:
 		return math.cos(beta)
@@ -108,11 +111,38 @@ def get_expectation(params, verbose=False):
 
 	return (totalXX + totalYY + totalZZ)
 
+# test that f(a) = f(-a)
+def test_f_sym():
+	betas = np.random.rand(p)
+	for bs in bitstrings:
+		if f_betas(bs, betas) != f_betas(minus(bs), betas):
+			return False
+	return True
+
+# test whether g(a) = g(-a)
+def test_g_sym():
+	betas = np.random.rand(p)
+	for bs in bitstrings:
+		if g_betas(bs, betas) != g_betas(minus(bs), betas):
+			return False
+	return True
+
+def test_g_sum_sym():
+	betas = np.random.rand(p)
+	gammas = np.random.rand(p)
+	Hp = get_Hp(gammas, betas)
+	
+	total = 0
+	for ind, bs in enumerate(bitstrings):
+		total += g_betas(bs, betas) * Hp[ind]
+	return total
+
+'''
 obj = opt.minimize(get_expectation, np.random.rand(2*p), tol=1e-3, options={'maxiter':100, 'disp':True})
 print(f'Optimization result: {obj.message}')
 print(f'Minimum arguments: {obj.x}')
 print(f'Minimum energy: {obj.fun}')
-
+'''
 
 
 
